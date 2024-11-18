@@ -1,5 +1,5 @@
-# User API
-Simple user CRUD API with golang
+# User Auth
+Simple user login system with golang
 
 # Tools
 ```shell
