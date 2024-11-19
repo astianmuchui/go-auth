@@ -21,12 +21,13 @@ type RegisterPayload struct {
 }
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{}) // Initialize ORM Connection
+
+	if err != nil { // Check for database connection error
 	  panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}) // Migrate the User model into the database schema
 
 	app := fiber.New()
 
@@ -35,17 +36,23 @@ func main() {
 		return c.SendFile("./templates/index.html")
 	})
 
-	app.Post("/register", func(context *fiber.Ctx) error {
+	app.Post("/register", func (context *fiber.Ctx) error {
 		payload := new(RegisterPayload)
 
 		if err := context.BodyParser(payload); err != nil {
 			return err
 		}
-		db.Create(&User{
+
+		// Add user to database
+		result := db.Create(&User{
 			Username: payload.Username,
 			Email: payload.Email,
 			Password: payload.Password,
 		})
+
+		if result.Error != nil {
+			return context.SendStatus(fiber.StatusCreated)
+		}
 
 		log.Println("Username:", payload.Username)
 		log.Println("Email:", payload.Email)
