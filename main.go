@@ -5,20 +5,10 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
 	"log"
+	"github.com/astianmuchui/go-auth/models"
 )
 
-type User struct {
-	gorm.Model
-	Username string
-	Email string
-	Password string
-}
 
-type RegisterPayload struct {
-	Username string
-	Email string
-	Password string
-}
 
 func main() {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{}) // Initialize ORM Connection
@@ -27,7 +17,7 @@ func main() {
 	  panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&User{}) // Migrate the User model into the database schema
+	db.AutoMigrate(&models.User{}) // Migrate the User model into the database schema
 
 	app := fiber.New()
 
@@ -37,18 +27,14 @@ func main() {
 	})
 
 	app.Post("/register", func (context *fiber.Ctx) error {
-		payload := new(RegisterPayload)
+		payload := new(models.User)
 
 		if err := context.BodyParser(payload); err != nil {
 			return err
 		}
 
 		// Add user to database
-		result := db.Create(&User{
-			Username: payload.Username,
-			Email: payload.Email,
-			Password: payload.Password,
-		})
+		result := models.CreateUser(payload)
 
 		if result.Error != nil {
 			return context.SendStatus(fiber.StatusCreated)
