@@ -2,22 +2,13 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
-	"gorm.io/driver/sqlite"
 	"log"
 	"github.com/astianmuchui/go-auth/models"
 )
 
-
-
 func main() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{}) // Initialize ORM Connection
 
-	if err != nil { // Check for database connection error
-	  panic("failed to connect database")
-	}
 
-	db.AutoMigrate(&models.User{}) // Migrate the User model into the database schema
 
 	app := fiber.New()
 

@@ -22,6 +22,8 @@ func connect() {
 	if err != nil {
 		log.Fatal("Unable to connect to database")
 	}
+	db.AutoMigrate(&User{}) // Migrate the User model into the database schema
+
 }
 
 func CreateUser(user_data *User) (*gorm.DB) {
