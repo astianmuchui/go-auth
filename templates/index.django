@@ -9,6 +9,12 @@ Signup
     <div class="flex justify-center items-center h-screen">
         <form action="/register" method="POST" class="bg-white p-6 rounded shadow-md w-full max-w-sm">
             <h2 class="text-2xl font-bold mb-4 text-blue-500">Sign Up</h2>
+            {% if signup_error %}
+            <div class="mb-4 p-2 text-red-500 bg-red-100 border border-red-300 rounded">
+                {{ signup_error }}
+            </div>
+            {% endif %}
+
             <div class="mb-4">
                 <label for="username" class="block text-gray-700">Username</label>
                 <input type="text" id="username" name="username" class="w-full p-2 border border-gray-300 rounded mt-1"
