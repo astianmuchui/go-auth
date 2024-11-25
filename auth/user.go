@@ -19,8 +19,7 @@ func Login(user *models.User) (bool) {
 			log.Println("Login successful")
 			return (true)
 		} else {
-			log.Fatal("Login not successful")
-
+			log.Println("Login not successful")
 			return (false)
 		}
 	}
