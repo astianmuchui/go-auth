@@ -4,17 +4,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"log"
 	"github.com/astianmuchui/go-auth/models"
+	"github.com/gofiber/template/django/v3"
+	"github.com/astianmuchui/go-auth/auth"
+
 )
 
 func main() {
 
+	engine := django.New("./templates", ".django")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
-
-	app := fiber.New()
-
-	/* Create Home route */
+	/* Home route */
 	app.Get("/", func (c *fiber.Ctx) error {
-		return c.SendFile("./templates/index.html")
+		return c.Render("index", fiber.Map{
+			"Title": "Hello world",
+		})
 	})
 
 	app.Post("/register", func (context *fiber.Ctx) error {
@@ -38,5 +44,25 @@ func main() {
 		return context.SendString("Username: " + payload.Username + " Email: " + payload.Email + " Password: " + payload.Password)
 	})
 
+	app.Get("/login", func (c *fiber.Ctx) error {
+		return c.Render("login", fiber.Map{})
+	})
+	app.Post("/signin", func (c *fiber.Ctx) error {
+		payload := new(models.User)
+
+		if err := c.BodyParser(payload); err != nil {
+			return err
+		}
+
+		var user_verified bool = auth.Login(payload)
+		if user_verified == true {
+			return c.Redirect("/login?logged_in")
+		}
+
+		log.Println("Username:", payload.Username)
+		log.Println("Password:", payload.Password)
+		return c.SendString("Username: " + payload.Username + " Password: " + payload.Password)
+
+	})
 	app.Listen(":8081")
 }
