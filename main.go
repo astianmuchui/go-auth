@@ -35,7 +35,7 @@ func main() {
 		log.Println("Email:", payload.Email)
 		log.Println("Password:", payload.Password)
 
-		return context.SendString("Username: " + payload.Username + " Email: " + payload.Email + "Password: " + payload.Password)
+		return context.SendString("Username: " + payload.Username + " Email: " + payload.Email + " Password: " + payload.Password)
 	})
 
 	app.Listen(":8081")
