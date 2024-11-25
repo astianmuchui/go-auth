@@ -6,6 +6,8 @@ import (
 	"github.com/astianmuchui/go-auth/models"
 	"github.com/gofiber/template/django/v3"
 	"github.com/astianmuchui/go-auth/auth"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 
 )
 
@@ -15,6 +17,10 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
+
+	app.Use(recover.New())
+	app.Use(logger.New())
+
 
 	/* Home route */
 	app.Get("/", func (c *fiber.Ctx) error {
