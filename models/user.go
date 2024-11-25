@@ -5,7 +5,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"log"
 	"golang.org/x/crypto/bcrypt"
-)
+	)
 
 var DB *gorm.DB;
 
@@ -69,4 +69,43 @@ func CreateUser(user_data *User) (*gorm.DB) {
 		})
 
 	return result
+}
+
+func GetUserDataById(user_id uint) User {
+	Connect()
+
+	var u User
+	result := DB.First(&u, (user_id))
+	if result.Error != nil {
+		log.Println("User not found")
+	}
+	return u
+}
+
+func GetUserDataByEmail(email string) User {
+	Connect()
+
+	var u User
+	result := DB.First(&u, "email = ?", email)
+	if result.Error != nil {
+		log.Println("User not found")
+	}
+	return u
+}
+
+func GetUserDataByUsername(username string) User {
+	Connect()
+
+	var u User
+	result := DB.First(&u, "username = ?", username)
+	if result.Error != nil {
+		log.Println("User not found")
+	}
+	return u
+}
+
+func UpdateUser(u User) {
+	Connect()
+
+	
 }

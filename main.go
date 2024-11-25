@@ -86,21 +86,78 @@ func main() {
 			return err
 		}
 
+		var u models.User
+		u = models.GetUserDataByUsername(payload.Username)
+		log.Println(u)
+		log.Println(payload)
+
 		userVerified := auth.Login(payload)
 		if userVerified {
+			sess, _ := store.Get(c)
+			sess.Set("login_error", "Invalid username or password")
+			sess.Set("user_email", u.Email)
+			sess.Set("logged_in", true)
+
+			sess.Save()
+
 			return c.Redirect("/dashboard")
 		}
-
-		sess, _ := store.Get(c)
-		sess.Set("login_error", "Invalid username or password")
-		sess.Save()
 
 		return c.Redirect("/login")
 	})
 
 	app.Get("/dashboard", func(c *fiber.Ctx) error {
-		return c.SendString("This is the dashboard")
+
+		sess, _ := store.Get(c)
+
+		logged_in := sess.Get("logged_in")
+		log.Println(logged_in)
+		if logged_in == true {
+			userEmail := sess.Get("user_email").(string)
+			log.Println(userEmail)
+			user_data := models.GetUserDataByEmail(userEmail)
+			return c.Render("dashboard", fiber.Map{
+				"username": user_data.Username,
+				"email":    user_data.Email,
+			})
+		} else {
+			return c.Redirect("/login")
+		}
 	})
 
+	app.Get("/logout", func(c *fiber.Ctx) error {
+		sess, _ := store.Get(c)
+		sess.Destroy()
+		return c.Redirect("/login")
+	})
+
+	app.Get("/update", func(c *fiber.Ctx) error {
+
+		sess, _ := store.Get(c)
+		logged_in := sess.Get("logged_in")
+
+		if logged_in == true {
+			userEmail := sess.Get("user_email").(string)
+			log.Println(userEmail)
+			user_data := models.GetUserDataByEmail(userEmail)
+
+			return c.Render("update", fiber.Map{
+				"username": user_data.Username,
+				"email":    user_data.Email,
+			})
+		} else {
+			return c.Redirect("/login")
+		}
+	})
+
+	// app.Post("/update-profile", func(c *fiber.Ctx) error {
+	// 	payload := new(models.User)
+
+	// 	if err := c.BodyParser(payload); err != nil {
+	// 		return err
+	// 	}
+
+		
+	// })
 	app.Listen(":8081")
 }

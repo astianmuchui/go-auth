@@ -1,0 +1,33 @@
+{% extends "./base.django" %}
+
+{% block title %}
+Update Profile
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-lvh box-content border-2 border-gray-500 overflow-x-hidden">
+    <div class="flex justify-center items-center h-screen">
+        <form action="/update-profile" method="POST" class="bg-white p-6 rounded shadow-md w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4 text-blue-500">Update Profile</h2>
+            {% if update_error %}
+            <div class="mb-4 p-2 text-red-500 bg-red-100 border border-red-300 rounded">
+                {{ update_error }}
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input type="text" id="username" name="username" class="w-full p-2 border border-gray-300 rounded mt-1" value={{ username }} required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700">Email</label>
+                <input type="email" id="email" name="email" class="w-full p-2 border border-gray-300 rounded mt-1" value={{ email }} required>
+            </div>
+
+
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Update profile</button>
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

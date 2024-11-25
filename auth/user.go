@@ -5,8 +5,10 @@ import (
 	"log"
 )
 
+
 func Login(user *models.User) (bool) {
 	var u models.User
+
 	models.Connect()
 
 	result := models.DB.First(&u, "username = ?", user.Username)
@@ -17,6 +19,7 @@ func Login(user *models.User) (bool) {
 		// Verify password
 		if models.Password_verify(u.Password, []byte(user.Password)) == true {
 			log.Println("Login successful")
+
 			return (true)
 		} else {
 			log.Println("Login not successful")
