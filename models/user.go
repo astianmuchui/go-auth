@@ -45,6 +45,20 @@ func Password_verify(hashed string, raw_pwd []byte) bool {
 	return true
 }
 
+func UserExists(u *User) bool {
+	Connect()
+
+	var user User
+	result := DB.First(&user, "username = ? OR email = ?", u.Username, u.Email)
+
+	if result.RowsAffected > 0 {
+		log.Println("User exists")
+		return true
+	} else {
+		return false
+	}
+}
+
 func CreateUser(user_data *User) (*gorm.DB) {
 	Connect() // Connect to database
 
