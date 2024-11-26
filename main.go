@@ -94,7 +94,6 @@ func main() {
 		userVerified := auth.Login(payload)
 		if userVerified {
 			sess, _ := store.Get(c)
-			sess.Set("login_error", "Invalid username or password")
 			sess.Set("user_email", u.Email)
 			sess.Set("logged_in", true)
 
@@ -103,6 +102,9 @@ func main() {
 			return c.Redirect("/dashboard")
 		}
 
+		sess, _ := store.Get(c)
+		sess.Set("login_error", "Invalid username or password")
+		sess.Save()
 		return c.Redirect("/login")
 	})
 
@@ -136,28 +138,68 @@ func main() {
 		sess, _ := store.Get(c)
 		logged_in := sess.Get("logged_in")
 
+
 		if logged_in == true {
 			userEmail := sess.Get("user_email").(string)
+			var update_err, update_success string
+			if sess.Get("update_error") != nil {
+				update_err = sess.Get("update_error").(string)
+			}
+			if sess.Get("update_success") != nil {
+				update_success = sess.Get("update_success").(string)
+			}
+			sess.Delete("update_error")
+			sess.Delete("update_success")
+			sess.Save()
 			log.Println(userEmail)
 			user_data := models.GetUserDataByEmail(userEmail)
 
 			return c.Render("update", fiber.Map{
-				"username": user_data.Username,
-				"email":    user_data.Email,
+				"username":       user_data.Username,
+				"email":          user_data.Email,
+				"update_error":   update_err,
+				"update_success": update_success,
 			})
 		} else {
 			return c.Redirect("/login")
 		}
 	})
 
-	// app.Post("/update-profile", func(c *fiber.Ctx) error {
-	// 	payload := new(models.User)
+	app.Post("/update-profile", func(c *fiber.Ctx) error {
+		sess, _ := store.Get(c)
+		logged_in := sess.Get("logged_in")
 
-	// 	if err := c.BodyParser(payload); err != nil {
-	// 		return err
-	// 	}
+		if logged_in == true {
+			payload := new(models.User)
 
-		
-	// })
+			if err := c.BodyParser(payload); err != nil {
+				return err
+			}
+
+			u := models.GetUserDataByEmail(sess.Get("user_email").(string))
+			u.Username = payload.Username
+			u.Email = payload.Email
+
+			result := models.DB.Save(u)
+
+			if result.Error == nil {
+				sess.Set("update_success", "Data Updated successfully")
+				log.Println("Updated data")
+				sess.Save()
+				return c.Redirect("/update")
+
+			} else {
+				log.Println("Did not Update data")
+
+				sess.Set("update_error", "Could not update profile")
+				sess.Save()
+				return c.Redirect("/update")
+
+			}
+		} else {
+			return c.Redirect("/login")
+		}
+
+	})
 	app.Listen(":8081")
 }

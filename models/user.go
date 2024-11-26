@@ -103,9 +103,3 @@ func GetUserDataByUsername(username string) User {
 	}
 	return u
 }
-
-func UpdateUser(u User) {
-	Connect()
-
-	
-}
