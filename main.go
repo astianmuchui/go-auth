@@ -51,9 +51,9 @@ func main() {
 			if result != nil && result.Error == nil {
 				sess.Set("user_email", payload.Email)
 				sess.Set("logged_in", true)
-		
+
 				sess.Save()
-		
+
 				return context.Redirect("/dashboard")
 			} else {
 				sess.Set("signup_error", "Unable to sign up")
@@ -201,7 +201,6 @@ func main() {
 			return c.Redirect("/login")
 		}
 	})
-
 
 	app.Listen(":8081")
 }
