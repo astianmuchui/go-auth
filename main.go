@@ -48,8 +48,13 @@ func main() {
 			// Add user to database
 			result := models.CreateUser(payload)
 
-			if result.Error != nil {
-				return context.SendStatus(fiber.StatusCreated)
+			if result != nil && result.Error == nil {
+				sess.Set("user_email", payload.Email)
+				sess.Set("logged_in", true)
+		
+				sess.Save()
+		
+				return context.Redirect("/dashboard")
 			} else {
 				sess.Set("signup_error", "Unable to sign up")
 				sess.Save()
@@ -65,7 +70,8 @@ func main() {
 		log.Println("Email:", payload.Email)
 		log.Println("Password:", payload.Password)
 
-		return context.SendString("Username: " + payload.Username + " Email: " + payload.Email + " Password: " + payload.Password)
+		return context.SendStatus(fiber.StatusCreated)
+
 	})
 
 	app.Get("/login", func(c *fiber.Ctx) error {
@@ -101,10 +107,6 @@ func main() {
 
 			return c.Redirect("/dashboard")
 		}
-
-		sess, _ := store.Get(c)
-		sess.Set("login_error", "Invalid username or password")
-		sess.Save()
 		return c.Redirect("/login")
 	})
 
@@ -137,7 +139,6 @@ func main() {
 
 		sess, _ := store.Get(c)
 		logged_in := sess.Get("logged_in")
-
 
 		if logged_in == true {
 			userEmail := sess.Get("user_email").(string)
@@ -199,7 +200,8 @@ func main() {
 		} else {
 			return c.Redirect("/login")
 		}
-
 	})
+
+
 	app.Listen(":8081")
 }
